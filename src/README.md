@@ -24,4 +24,4 @@ React, Vite, JavaScript, CSS, GitHub REST API
 - Fetching and combining data from multiple API endpoints with `fetch` and `Promise.all`
 - Managing state with React hooks (`useState`, `useEffect`)
 - Handling API errors and GitHub's unauthenticated rate limit
-- Deploying a Vite app to Vercel from GitHubgit
+- Deploying a Vite app to Vercel from GitHub
