@@ -1,16 +1,27 @@
-# React + Vite
+# GitHub Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web app that shows my GitHub profile, language breakdown, and repositories using live data from the GitHub API.
 
-Currently, two official plugins are available:
+**Live demo:** https://github-dashboard-brown.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- Fetches profile data from the GitHub REST API
+- Language breakdown across all public repos, shown as percentage bars
+- Repository list with links and main language
+- Error handling for API failures and rate limits
+- Dark theme, deployed on Vercel
 
-## React Compiler
+## Built with
+React, Vite, JavaScript, CSS, GitHub REST API
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run it locally
+1. Clone the repo
+2. Run `npm install`
+3. Run `npm run dev`
+4. Open http://localhost:5173
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## What I learned
+- Fetching and combining data from multiple API endpoints with `fetch` and `Promise.all`
+- Managing state with React hooks (`useState`, `useEffect`)
+- Handling API errors and GitHub's unauthenticated rate limit
+- Deploying a Vite app to Vercel from GitHub
