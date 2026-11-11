@@ -1,6 +1,21 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
+const CACHE_KEY = 'github-dashboard-cache'
+const ONE_HOUR = 60 * 60 * 1000
+
+function readCache() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CACHE_KEY))
+    if (saved && Date.now() - saved.time < ONE_HOUR) {
+      return saved
+    }
+  } catch (e) {
+    // ignore a broken cache
+  }
+  return null
+}
+
 function App() {
   const [user, setUser] = useState(null)
   const [repos, setRepos] = useState([])
@@ -8,12 +23,23 @@ function App() {
   const [languageBytes, setLanguageBytes] = useState({})
 
   useEffect(() => {
+    const cached = readCache()
+    if (cached) {
+      setUser(cached.user)
+      setRepos(cached.repos)
+      setLanguageBytes(cached.languageBytes)
+      return
+    }
+
+    let userData = null
+
     fetch('https://api.github.com/users/JKisaaka')
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
           setError(data.message)
         } else {
+          userData = data
           setUser(data)
         }
       })
@@ -36,6 +62,17 @@ function App() {
               })
             })
             setLanguageBytes(totals)
+            if (userData) {
+              localStorage.setItem(
+                CACHE_KEY,
+                JSON.stringify({
+                  time: Date.now(),
+                  user: userData,
+                  repos: data,
+                  languageBytes: totals,
+                })
+              )
+            }
           })
         }
       })
@@ -44,6 +81,9 @@ function App() {
 
   const maxBytes = Math.max(1, ...Object.values(languageBytes))
   const totalBytes = Object.values(languageBytes).reduce((a, b) => a + b, 0)
+  const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0)
+  const languageCount = Object.keys(languageBytes).length
+  const memberSince = user ? new Date(user.created_at).getFullYear() : ''
 
   if (error) {
     return <p>Error: {error}</p>
@@ -55,11 +95,33 @@ function App() {
 
   return (
     <div>
-      <img src={user.avatar_url} alt="avatar" width="120" />
-      <h1>{user.name || user.login}</h1>
-      <p>{user.bio || 'No bio yet'}</p>
-      <p>Public repos: {user.public_repos}</p>
-      <p>Followers: {user.followers}</p>
+      <div className="profile-card">
+        <img src={user.avatar_url} alt="avatar" width="120" />
+        <div>
+          <h1>{user.name || user.login}</h1>
+          <p className="muted">@{user.login}</p>
+          <p>{user.bio || 'No bio yet'}</p>
+        </div>
+      </div>
+
+      <div className="stats">
+        <div className="stat">
+          <span className="stat-number">{user.public_repos}</span>
+          <span className="muted">Repos</span>
+        </div>
+        <div className="stat">
+          <span className="stat-number">{languageCount}</span>
+          <span className="muted">Languages</span>
+        </div>
+        <div className="stat">
+          <span className="stat-number">{totalStars}</span>
+          <span className="muted">Stars</span>
+        </div>
+        <div className="stat">
+          <span className="stat-number">{memberSince}</span>
+          <span className="muted">On GitHub since</span>
+        </div>
+      </div>
 
       <h2>Languages</h2>
       {Object.entries(languageBytes)
@@ -76,14 +138,23 @@ function App() {
         ))}
 
       <h2>My Repositories</h2>
-      <ul>
+      <div className="repo-grid">
         {repos.map((repo) => (
-          <li key={repo.id}>
-            <a href={repo.html_url}>{repo.name}</a>
-            {repo.language && ` (${repo.language})`}
-          </li>
+          <a
+            key={repo.id}
+            href={repo.html_url}
+            className="repo-card"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <h3>{repo.name}</h3>
+            <p className="muted">
+              {repo.description || 'No description yet'}
+            </p>
+            {repo.language && <span className="tag">{repo.language}</span>}
+          </a>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }
